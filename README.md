@@ -4,12 +4,12 @@ Moving-Blocks
 Simple 4x4 Slide Puzzle Application using Actionscript 3.
 
 Movieclips (Instance names):
-box1, box2,..., box16               //main objects
-shadow1, shadow2,..., shadow16      //3D effect when the box is pressed
+- box1, box2,..., box16               //main objects
+- shadow1, shadow2,..., shadow16      //3D effect when the box is pressed
 
 Buttons (Instance Names):
-startButton                         
-button1, button2,..., button16
+- startButton
+- button1, button2,..., button16
 
 guide:
 - Open a new Actionscript 3 file.
