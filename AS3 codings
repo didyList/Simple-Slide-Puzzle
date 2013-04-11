@@ -1,0 +1,191 @@
+import flash.events.MouseEvent;
+import fl.motion.easing.Back;
+import fl.transitions.Tween;
+import fl.transitions.easing.Strong;
+import fl.transitions.TweenEvent;
+import flash.events.Event;
+
+var subtotal:Number = 4;
+var total:Number = subtotal*subtotal;
+var score:Number = 0;
+var box:Array = new Array();
+var boxRandom:Array = new Array();
+var regbox:Array = new Array(subtotal);
+var button:Array = new Array();
+var buttonn:Array = new Array("button1","button2","button3","button4","button5","button6","button7","button8","button9","button10","button11","button12","button13","button14","button15","button16");
+var shad:Array = new Array(); //Array for Shadow
+var cekRandom:Array = new Array();
+var g:Number;
+var regindex:Number;
+var reg:String;
+var regx:Number;
+var regy:Number;
+var changex:Number;
+var changey:Number;
+var slide:Tween;
+var appear:Tween;
+var nextto:Boolean = false;
+var gametime:Boolean;
+var c:Number=0;
+var randomised:Number = 1;
+
+//activate the start button
+startButton.addEventListener(MouseEvent.CLICK, startPressed);
+
+//put the button into the array
+for(var a:Number=0; a<subtotal; a++){ 
+  for(var b:Number=0; b<subtotal; b++){
+		boxRandom[c]= ["box"+(c+1).toString()];
+		box["box"+(c+1).toString()] = new Array(2);
+		box["box"+(c+1).toString()] = [b,a];
+		shad[c] = ["shadow"+(c+1).toString()];
+		
+		getChildByName(shad[c]).alpha = 0;
+		button["button"+ (c+1).toString()] = new Array(2); 
+		button["button"+ (c+1).toString()] = [b,a];
+		c++;
+	} // end for b
+} //end for a
+
+for(a=0; a<subtotal; a++){
+	regbox[a] = new Array(subtotal);
+	regbox[a] = [boxRandom[a], boxRandom[a+4], boxRandom[a+8], boxRandom[a+12]];
+}
+
+function startPressed(event:MouseEvent){
+	c=0;
+	gametime = false;
+	randomised = 0;
+	startRandom();
+
+	for(var r:Number=0; r<total; r++){ 	
+		getChildByName(buttonn[r]).visible = true;
+		getChildByName(buttonn[r]).addEventListener(MouseEvent.MOUSE_DOWN, mouse_down);
+		getChildByName(buttonn[r]).addEventListener(MouseEvent.MOUSE_UP, mouse_up);
+	}
+	gametime = true;
+	score = 0;
+} //end of mulai
+
+function startRandom():void{
+	//give value to cekArray
+	getChildByName("box16").alpha = 0; //"box"+total.toString()
+	for(var j:Number=0; j<subtotal; j++){
+		for (var k:Number=0; k<total; k++){
+			cekRandom[k] = 0;
+		} //end for
+		cekRandom[15] = 1;
+		randomised = 0;
+		while (randomised<16){
+			nextto = false;
+			while(!nextto){
+				g = Math.floor(Math.random()*total);
+				reg = "box" + (g+1).toString();
+				regx = box[reg][0];
+				regy = box[reg][1];
+				track();
+			}
+			randomised = 0;
+			for(var i:Number=0; i<total; i++){
+				if(cekRandom[i] == 1){
+					randomised++;
+				}
+			}
+		}
+	}
+} // end of StartRandom
+
+function getIndex(target:Object):void {
+	regindex = buttonn.indexOf(target.name);
+}
+
+function mouse_down(event:MouseEvent){
+	reg = event.target.name;
+	getIndex(event.target);
+	regx = button[reg][0];
+	regy = button[reg][1];
+	if(regbox[regx][regy]!="box16"){
+		appear = new Tween(getChildByName(shad[regindex]), "alpha", Strong.easeOut, getChildByName(shad[regindex]).alpha=0, getChildByName(shad[regindex]).alpha+0.7, .2, true);
+	}
+}
+
+function mouse_up(event:MouseEvent){
+	if(regbox[regx][regy]!="box16"){
+		appear = new Tween(getChildByName(shad[regindex]), "alpha", Strong.easeOut, getChildByName(shad[regindex]).alpha=.7, getChildByName(shad[regindex]).alpha-0.7, .2, true);
+		regx = button[reg][0];
+		regy = button[reg][1];
+		track();
+	}
+}
+
+//function to check if the box you pressed is next to the empty space
+function track(){	
+	changex = box["box16"][0];
+	changey = box["box16"][1];
+	if(((regx-1)==changex && regy==changey) || ((regx+1)==changex && regy==changey) || (regx==changex && (regy-1)==changey) || (regx==changex && (regy+1)==changey)){
+		nextto = true;
+		cekRandom[g] = 1;
+		found();
+	}
+}
+
+//function when you pressed the box next to the empty space
+function found(){
+	changex = box["box16"][0];
+	changey = box["box16"][1];
+	box["box16"][0] = box[regbox[regx][regy]][0];
+	box["box16"][1] = box[regbox[regx][regy]][1];
+	box[regbox[regx][regy]][0] = changex;
+	box[regbox[regx][regy]][1] = changey;
+	
+	reg = regbox[regx][regy]; //box pressed
+	regbox[regx][regy]= "box16";
+	regbox[changex][changey] = reg;
+	
+	changex = getChildByName(reg).x;
+	changey = getChildByName(reg).y;
+	
+	if(gametime){
+		var slidedistance:Number;
+		if( (getChildByName(reg).x-getChildByName("box16").x)==0){
+			slidedistance = getChildByName("box16").y - getChildByName(reg).y;
+			slide = new Tween(getChildByName(reg), "y", Strong.easeOut, getChildByName(reg).y, getChildByName(reg).y+slidedistance, .3, true);
+		}
+		else if( (getChildByName(reg).y-getChildByName("box16").y)==0){
+			slidedistance = getChildByName("box16").x - getChildByName(reg).x;
+			slide = new Tween(getChildByName(reg), "x", Strong.easeOut, getChildByName(reg).x, getChildByName(reg).x+slidedistance, .3, true);
+		}
+	}
+	else{
+		getChildByName(reg).x = getChildByName("box16").x;
+		getChildByName(reg).y = getChildByName("box16").y;
+	}
+	
+	getChildByName("box16").x = changex;
+	getChildByName("box16").y = changey;
+	
+	if(gametime){
+		countScore();
+	}
+}
+
+// count the score
+function countScore(){
+	g=1;
+	score=0;
+	for(var i:Number=0; i<subtotal; i++){
+		for(var j:Number=0; j<subtotal; j++){
+			if(regbox[j][i] == ("box"+g.toString())){
+				score++;
+			}
+			g++;
+		}
+	}
+	if(score == 16){
+		appear = new Tween(getChildByName(boxRandom[(total-1)]), "alpha", Strong.easeOut, getChildByName(boxRandom[(total-1)]).alpha, getChildByName(boxRandom[(total-1)]).alpha+1, 1, true);
+		for(i=0;i<total; i++){
+			getChildByName(buttonn[i]).visible = false;
+		}
+		//slide = new Tween(getChildByName(boxRandom[(total-1)]), "rotationY", Strong.easeOut, getChildByName(boxRandom[(total-1)]).rotationY, getChildByName(boxRandom[(total-1)]).rotationY+(360*4), 2, true);
+	}
+}
